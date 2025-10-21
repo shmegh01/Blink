@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Видео БЛИНК</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: radial-gradient(circle at top left, #0c0c0c, #000);
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+      position: relative;
+    }
+
+    /* --- Фоновая анимация --- */
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    /* --- Заголовок --- */
+    .header {
+      text-align: center;
+      padding: 40px 20px;
+      z-index: 1;
+      position: relative;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 4rem;
+      color: #a6d8ff;
+      font-weight: 700;
+      letter-spacing: 6px;
+      text-shadow:
+        0 0 10px #0066ff,
+        0 0 20px #0066ff,
+        0 0 40px #0066ff,
+        0 0 80px rgba(0, 102, 255, 0.4);
+      animation: glow 3s ease-in-out infinite alternate;
+    }
+
+    /* --- Контейнер видео --- */
+    .video-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+      padding: 40px 20px;
+      width: 100%;
+      max-width: 1200px;
+      z-index: 1;
+      position: relative;
+    }
+
+    .video-section {
+      width: 100%;
+      text-align: center;
+    }
+
+    .video-section h2 {
+      font-size: 2.5rem;
+      color: #ffffff;
+      margin-bottom: 20px;
+      text-shadow: 0 0 15px rgba(0, 150, 255, 0.7);
+    }
+
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(0, 102, 255, 0.6);
+    }
+
+    .video-wrapper iframe {
+      width: 100%;
+      height: 450px;
+      border: none;
+    }
+
+    /* --- Сетка видео --- */
+    .videos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      width: 100%;
+      max-width: 1200px;
+      padding: 40px 20px;
+    }
+
+    .video-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0, 102, 255, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .video-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 0 30px rgba(0, 102, 255, 0.7);
+    }
+
+    .video-card iframe {
+      width: 100%;
+      height: 200px;
+      border: none;
+    }
+
+    .video-info {
+      padding: 20px;
+    }
+
+    .video-info h3 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: #a6d8ff;
+    }
+
+    .video-info p {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    /* --- Кнопка возврата --- */
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 10;
+      text-decoration: none;
+    }
+
+    .back-btn:hover {
+      background: #0066ff;
+      color: #fff;
+      box-shadow: 0 0 15px #0066ff;
+      transform: translateY(-2px);
+    }
+
+    /* --- Сообщение об ошибке --- */
+    .error-message {
+      background: rgba(255, 0, 0, 0.2);
+      border: 1px solid rgba(255, 0, 0, 0.5);
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 600px;
+      text-align: center;
+    }
+
+    .error-message h3 {
+      color: #ff6b6b;
+      margin-bottom: 10px;
+    }
+
+    @keyframes glow {
+      0% { opacity: 0.9; text-shadow: 0 0 10px #0066ff, 0 0 20px #0066ff; }
+      100% { opacity: 1; text-shadow: 0 0 30px #0066ff, 0 0 80px #0066ff; }
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2.5rem;
+        letter-spacing: 3px;
+      }
+
+      .video-wrapper iframe {
+        height: 300px;
+      }
+
+      .videos-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .back-btn {
+        top: 10px;
+        left: 10px;
+        padding: 8px 15px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="stars"></canvas>
+
+  <div class="header">
+    <h1>ВИДЕО БЛИНКА</h1>
+  </div>
+
+  <div class="video-container">
+    <!-- Главное видео -->
+    <div class="video-section">
+      <h2></h2>
+      <div class="video-wrapper">
+        <!-- Исправленная ссылка на видео -->
+        <iframe src="https://www.youtube.com/embed/qTthDQX5wvQ" 
+                title="ФИНАЛЬНЫЙ НАБОР НА СЕРВЕР КОНТЕНТМЕЙКЕРОВ / БЛИНК" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+        </iframe>
+        <div class="video-info">
+            <h3>ФИНАЛЬНЫЙ НАБОР НА СЕРВЕР КОНТЕНТМЕЙКЕРОВ / БЛИНК</h3>
+            <p></p>
+          </div>
+      </div>
+    </div>
+
+    <!-- Другие видео -->
+    <div class="video-section">
+      <h2>ДРУГИЕ ВИДЕО</h2>
+      <div class="videos-grid">
+        <!-- Видео 1 -->
+        <div class="video-card">
+          <iframe src="" 
+                  title="" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowfullscreen>
+          </iframe>
+          <div class="video-info">
+            <h3></h3>
+            <p></p>
+          </div>
+        </div>
+
+        <!-- Видео 2 -->
+        <div class="video-card">
+          <iframe src="" 
+                  title="" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowfullscreen>
+          </iframe>
+          <div class="video-info">
+            <h3></h3>
+            <p></p>
+          </div>
+        </div>
+
+        <!-- Видео 3 -->
+        <div class="video-card">
+          <iframe src="" 
+                  title="" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowfullscreen>
+          </iframe>
+          <div class="video-info">
+            <h3></h3>
+            <p></p>
+          </div>
+        </div>
+
+        <!-- Видео 4 -->
+        <div class="video-card">
+          <iframe src="" 
+                  title="" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowfullscreen>
+          </iframe>
+          <div class="video-info">
+            <h3></h3>
+            <p></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Фоновые "звёзды" ---
+    const canvas = document.getElementById('stars');
+    const ctx = canvas.getContext('2d');
+    
+    // Создаем звезду программно вместо использования внешнего файла
+    function createStarImage() {
+      const starCanvas = document.createElement('canvas');
+      starCanvas.width = 24;
+      starCanvas.height = 24;
+      const starCtx = starCanvas.getContext('2d');
+      
+      // Рисуем звезду
+      starCtx.fillStyle = 'white';
+      starCtx.beginPath();
+      starCtx.moveTo(12, 2);
+      starCtx.lineTo(14.5, 8.5);
+      starCtx.lineTo(21.5, 9);
+      starCtx.lineTo(16.5, 13.5);
+      starCtx.lineTo(18, 20.5);
+      starCtx.lineTo(12, 17);
+      starCtx.lineTo(6, 20.5);
+      starCtx.lineTo(7.5, 13.5);
+      starCtx.lineTo(2.5, 9);
+      starCtx.lineTo(9.5, 8.5);
+      starCtx.closePath();
+      starCtx.fill();
+      
+      return starCanvas;
+    }
+    
+    const starImg = createStarImage();
+    let elements = [];
+    const num = 25;
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function createElements() {
+      elements = [];
+      for (let i = 0; i < num; i++) {
+        elements.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: 20 + Math.random() * 30,
+          speedX: -0.5 + Math.random(),
+          speedY: -0.5 + Math.random(),
+          opacity: 0.3 + Math.random() * 0.7,
+          rotation: Math.random() * 360,
+          rotationSpeed: (Math.random() - 0.5) * 0.2
+        });
+      }
+    }
+    createElements();
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let e of elements) {
+        ctx.save();
+        ctx.globalAlpha = e.opacity;
+        ctx.translate(e.x, e.y);
+        ctx.rotate((e.rotation * Math.PI) / 180);
+        ctx.drawImage(starImg, -e.size / 2, -e.size / 2, e.size, e.size);
+        ctx.restore();
+
+        e.x += e.speedX;
+        e.y += e.speedY;
+        e.rotation += e.rotationSpeed;
+
+        if (e.x < -50) e.x = canvas.width + 50;
+        if (e.x > canvas.width + 50) e.x = -50;
+        if (e.y < -50) e.y = canvas.height + 50;
+        if (e.y > canvas.height + 50) e.y = -50;
+      }
+      requestAnimationFrame(animate);
+    }
+
+    // Запускаем анимацию
+    animate();
+  </script>
+</body>
+</html>
